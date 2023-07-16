@@ -10,7 +10,10 @@ import dotenv
 import clipboard
 
 TOKEN = dotenv.get_key('.env', 'TOKEN') 
-
+if TOKEN == None:
+    TOKEN = input("Enter your token: ") 
+    with open('.env', 'w') as f:
+        f.write(f'TOKEN={TOKEN}')
 
 def detect_device():    
     json_data_audio_devices = subprocess.Popen('system_profiler SPAudioDataType -json', shell=True, stdout=subprocess.PIPE).stdout.read()
@@ -33,9 +36,9 @@ def speak(text):
     subprocess.Popen('rm tmp.mp3', shell=True, stdout=subprocess.PIPE).stdout.read()
 
 def bard_clipboard(text):
-   code = re.findall(r"```[\s\S]+?```", text) 
+    code = re.findall(r"```[\s\S]+?```", text) 
     if len(code) > 0:
-        clipboard.copy(code[0])
+        clipboard.copy(code[0].replace('```', ''))
 
 def bard_console(input,session):
     bard = Bard(token=TOKEN,session=session)
@@ -57,7 +60,6 @@ def main():
     print("Welcome to Bard Console")
     while True:
         input_val = sys.stdin.readline().strip()
-        # input_val ="hello world" 
         if sys.stdin.isatty():
             if input_val == "exit":
                 break
